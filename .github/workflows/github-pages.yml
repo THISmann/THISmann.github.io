@@ -24,9 +24,19 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Vite base path
+        id: base
+        run: |
+          OWNER="${{ github.repository_owner }}"
+          NAME="${{ github.event.repository.name }}"
+          if [ "$NAME" = "${OWNER}.github.io" ]; then
+            echo "value=/" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=/${NAME}/" >> "$GITHUB_OUTPUT"
+          fi
       - run: npm run build
         env:
-          VITE_BASE: /kec_platform/
+          VITE_BASE: ${{ steps.base.outputs.value }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
